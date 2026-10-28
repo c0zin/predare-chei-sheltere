@@ -23,8 +23,8 @@
                 <i class="fa-solid fa-key text-xl"></i>
             </div>
             <div>
-                <h1 class="text-xl font-bold tracking-wide">Predare Chei Sheltere (Multi-Județ v0.1)</h1>
-                <p class="text-xs text-slate-400">Sistem centralizat pentru Gorj, Mehedinți, Dolj etc.</p>
+                <h1 class="text-xl font-bold tracking-wide">Predare Chei Sheltere (Multi-Județ v0.2)</h1>
+                <p class="text-xs text-slate-400">Sistem centralizat pentru Gorj, Mehedinți, Dolj, Olt etc.</p>
             </div>
         </div>
         
@@ -47,7 +47,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex items-center justify-between">
                 <div>
-                    <p class="text-xs uppercase font-semibold text-slate-500">Predări Active</p>
+                    <p class="text-xs uppercase font-semibold text-slate-500">Predări Active (Total)</p>
                     <h3 id="stat-active" class="text-2xl font-black text-red-600">0</h3>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xl">
@@ -109,6 +109,7 @@
                             <option value="Gorj">Gorj</option>
                             <option value="Mehedinți">Mehedinți</option>
                             <option value="Dolj">Dolj</option>
+                            <option value="Olt">Olt</option>
                             <option value="Alta zona">Altă zonă / Județ</option>
                         </select>
                     </div>
@@ -208,6 +209,7 @@
                         <option value="Gorj">Gorj</option>
                         <option value="Mehedinți">Mehedinți</option>
                         <option value="Dolj">Dolj</option>
+                        <option value="Olt">Olt</option>
                     </select>
 
                     <select id="filter-status" onchange="renderRecordsTable()" class="px-3 py-1.5 text-sm border border-slate-300 rounded-lg outline-none">
@@ -263,14 +265,12 @@
 
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-3 px-6 text-center text-xs text-slate-500 flex flex-wrap justify-between items-center">
-        <div>&copy; 2026 Management Acces Sheltere - Versiunea Centralizată Google Sheets (v0.1)</div>
-        <div class="text-slate-400">Gorj • Mehedinți • Dolj • Altele</div>
+        <div>&copy; 2026 Management Acces Sheltere - Versiunea Centralizată Google Sheets (v0.2)</div>
+        <div class="text-slate-400">Gorj • Mehedinți • Dolj • Olt • Altele</div>
     </footer>
 
     <!-- App Logic -->
     <script>
-        // ATENȚIE: Aici vei pune URL-ul de la Google Apps Script Web App după ce îl conectezi!
-        // Până când legi Google Sheets, aplicația folosește modul local de siguranță.
         const GOOGLE_SCRIPT_URL = 'PUNEM_AICI_LINKUL_TAU_APPHISTORY_WEB_APP';
 
         let currentYear = 2026;
@@ -292,10 +292,8 @@
             document.getElementById('date-end').value = todayStr;
         }
 
-        // Sincronizare cu Google Sheets / Cloud
         async function fetchDataFromCloud() {
             if (GOOGLE_SCRIPT_URL.includes('PUNEM_AICI')) {
-                // Mod fallback local dacă nu e configurat încă linkul de Google Sheets
                 const localData = localStorage.getItem('shelter_cloud_mock_v1');
                 records = localData ? JSON.parse(localData) : [];
                 renderApp();
@@ -309,7 +307,6 @@
                 renderApp();
             } catch (err) {
                 console.error("Eroare la preluarea datelor din Cloud:", err);
-                // Fallback la local storage dacă pică netul
                 const localData = localStorage.getItem('shelter_cloud_mock_v1');
                 records = localData ? JSON.parse(localData) : [];
                 renderApp();
@@ -318,7 +315,6 @@
 
         async function saveToCloud(actionType, recordData) {
             if (GOOGLE_SCRIPT_URL.includes('PUNEM_AICI')) {
-                // Salvare locală temporară până legi Google Sheets
                 if (actionType === 'add') {
                     recordData.id = 'ID_' + Date.now();
                     records.unshift(recordData);
@@ -337,7 +333,6 @@
                 return;
             }
 
-            // Aici se va face trimiterea reală către Google Sheets prin Google Apps Script
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
@@ -345,7 +340,7 @@
                 });
                 const result = await response.json();
                 if(result.status === 'success') {
-                    fetchDataFromCloud(); // Reîmprospătă datele centralizate
+                    fetchDataFromCloud();
                 } else {
                     alert('Eroare la salvarea în Google Sheets.');
                 }
@@ -360,7 +355,6 @@
             updateStats();
         }
 
-        // Tab Switching
         function switchTab(tab) {
             const calTab = document.getElementById('tab-calendar');
             const recTab = document.getElementById('tab-records');
@@ -380,7 +374,6 @@
             }
         }
 
-        // Calendar Render Logic
         const monthNames = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"];
 
         function changeMonth(delta) {
@@ -490,7 +483,6 @@
                 return;
             }
 
-            // Conflict check
             if (status === 'Activ') {
                 const conflict = records.find(r => 
                     r.id !== id && 
