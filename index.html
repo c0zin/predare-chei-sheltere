@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predare Chei - Cloud Live</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin: auto;
+        }
+        h2 {
+            color: #1f4e78;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #1f4e78;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #163857;
+        }
+        #status-msg {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Predare Chei - Cloud Live</h2>
+    <form id="keyForm">
+        <div class="form-group">
+            <label for="judet">Județ:</label>
+            <select id="judet" required>
+                <option value="">-- Alege Județul --</option>
+                <option value="Dolj">Dolj</option>
+                <option value="Gorj">Gorj</option>
+                <option value="Mehedinti">Mehedinți</option>
+                <option value="Olt">Olt</option>
+                <option value="Valcea">Vâlcea</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="site">Site:</label>
+            <input type="text" id="site" placeholder="Introduceți denumirea site-ului" required>
+        </div>
+
+        <div class="form-group">
+            <label for="subcontractor">Subcontractor:</label>
+            <input type="text" id="subcontractor" placeholder="Nume subcontractor" required>
+        </div>
+
+        <div class="form-group">
+            <label for="activitate">Activitate:</label>
+            <input type="text" id="activitate" placeholder="Ex: Intervenție / Mentenanță" required>
+        </div>
+
+        <div class="form-group">
+            <label for="start">Start:</label>
+            <input type="datetime-local" id="start" required>
+        </div>
+
+        <div class="form-group">
+            <label for="end">End:</label>
+            <input type="datetime-local" id="end" required>
+        </div>
+
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <select id="status" required>
+                <option value="Finalizat">Finalizat</option>
+                <option value="În Curs">În Curs</option>
+                <option value="Anulat">Anulat</option>
+            </select>
+        </div>
+
+        <button type="submit" id="submitBtn">Salvează Predarea (Sincronizare Cloud Live)</button>
+    </form>
+    <div id="status-msg"></div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbza4qKCzSBgzqdolTmkBI8GDo0c6Ajb8j2njK0OPl_KeTTfvpImStj15wn_n60j8cfWaA/exec";
+
+    document.getElementById('keyForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const btn = document.getElementById('submitBtn');
+        const msg = document.getElementById('status-msg');
+        
+        btn.disabled = true;
+        btn.textContent = "Se salvează în Google Sheets...";
+        msg.style.color = "#1f4e78";
+        msg.textContent = "Se trimit datele...";
+
+        const formData = {
+            id: 'ID_' + new Date().getTime(),
+            judet: document.getElementById('judet').value,
+            site: document.getElementById('site').value,
+            subcontractor: document.getElementById('subcontractor').value,
+            activitate: document.getElementById('activitate').value,
+            start: document.getElementById('start').value,
+            end: document.getElementById('end').value,
+            status: document.getElementById('status').value
+        };
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(() => {
+            msg.style.color = "green";
+            msg.textContent = "Salvat cu succes în Google Sheets! (Cloud Live)";
+            document.getElementById('keyForm').reset();
+            btn.disabled = false;
+            btn.textContent = "Salvează Predarea (Sincronizare Cloud Live)";
+        })
+        .catch(error => {
+            console.error('Eroare:', error);
+            msg.style.color = "red";
+            msg.textContent = "Eroare la salvare. Verificați conexiunea.";
+            btn.disabled = false;
+            btn.textContent = "Salvează Predarea (Sincronizare Cloud Live)";
+        });
+    });
+</script>
+
+</body>
+</html>
