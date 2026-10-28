@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicație Predare Chei Sheltere</title>
+    <style>
+        :root {
+            --bg-color: #eef2f5;
+            --card-bg: #ffffff;
+            --primary: #1e3c72;
+            --primary-hover: #162d55;
+            --accent: #2a5298;
+            --text: #333333;
+            --border: #cccccc;
+            --success: #28a745;
+            --danger: #dc3545;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 550px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 24px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #444;
+        }
+
+        input[type="text"],
+        input[type="datetime-local"],
+        select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background-color: #fafafa;
+        }
+
+        input[type="text"]:focus,
+        input[type="datetime-local"]:focus,
+        select:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.15);
+            background-color: #fff;
+        }
+
+        .date-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .date-row .form-group {
+            flex: 1;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:active {
+            transform: scale(0.99);
+        }
+
+        #status-msg {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            min-height: 20px;
+        }
+
+        .status-success {
+            color: var(--success);
+        }
+
+        .status-error {
+            color: var(--danger);
+        }
+
+        .status-info {
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Aplicație Predare Chei Sheltere</h2>
+    <form id="keyForm">
+        <div class="form-group">
+            <label for="judet">Județ</label>
+            <select id="judet" required>
+                <option value="">-- Selectează Județul --</option>
+                <option value="Dolj">Dolj</option>
+                <option value="Gorj">Gorj</option>
+                <option value="Mehedinti">Mehedinți</option>
+                <option value="Olt">Olt</option>
+                <option value="Valcea">Vâlcea</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="site">Site (Locație)</label>
+            <input type="text" id="site" placeholder="Denumire Site / Cod" required>
+        </div>
+
+        <div class="form-group">
+            <label for="subcontractor">Subcontractor</label>
+            <input type="text" id="subcontractor" placeholder="Nume Subcontractor" required>
+        </div>
+
+        <div class="form-group">
+            <label for="activitate">Activitate</label>
+            <input type="text" id="activitate" placeholder="Ex: Intervenție / Mentenanță" required>
+        </div>
+
+        <div class="date-row">
+            <div class="form-group">
+                <label for="start">Data și Ora Start</label>
+                <input type="datetime-local" id="start" required>
+            </div>
+
+            <div class="form-group">
+                <label for="end">Data și Ora End</label>
+                <input type="datetime-local" id="end" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" required>
+                <option value="În Curs">În Curs</option>
+                <option value="Finalizat">Finalizat</option>
+                <option value="Anulat">Anulat</option>
+            </select>
+        </div>
+
+        <button type="submit" id="submitBtn">Salvează Predarea</button>
+    </form>
+
+    <div id="status-msg"></div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbza4qKCzSBgzqdolTmkBI8GDo0c6Ajb8j2njK0OPl_KeTTfvpImStj15wn_n60j8cfWaA/exec";
+
+    document.getElementById('keyForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const btn = document.getElementById('submitBtn');
+        const msg = document.getElementById('status-msg');
+
+        btn.disabled = true;
+        btn.textContent = "Se salvează...";
+        msg.className = "status-info";
+        msg.textContent = "Se trimit datele către Google Sheets...";
+
+        const formData = {
+            id: 'ID_' + new Date().getTime(),
+            judet: document.getElementById('judet').value,
+            site: document.getElementById('site').value,
+            subcontractor: document.getElementById('subcontractor').value,
+            activitate: document.getElementById('activitate').value,
+            start: document.getElementById('start').value,
+            end: document.getElementById('end').value,
+            status: document.getElementById('status').value
+        };
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(() => {
+            msg.className = "status-success";
+            msg.textContent = "Salvat cu succes în Google Sheets!";
+            document.getElementById('keyForm').reset();
+            btn.disabled = false;
+            btn.textContent = "Salvează Predarea";
+        })
+        .catch(error => {
+            console.error('Eroare:', error);
+            msg.className = "status-error";
+            msg.textContent = "Eroare la salvare. Verificați conexiunea.";
+            btn.disabled = false;
+            btn.textContent = "Salvează Predarea";
+        });
+    });
+</script>
+
+</body>
+</html>
